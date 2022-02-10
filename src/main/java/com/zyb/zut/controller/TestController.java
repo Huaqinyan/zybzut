@@ -1,7 +1,13 @@
 package com.zyb.zut.controller;
 
+import com.zyb.zut.domain.Test;
+import com.zyb.zut.service.TestService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.List;
+
 //@ComponentScan("com.zyb")当要扫描的包不在application子目录下时需要加，说明需要扫哪一个包下
 //@ComponentScan({"com.zyb",con.test}) //扫描不和主类在同一级的类
 @RestController //返回一个字字符串，Controller用来返回一个页面
@@ -9,6 +15,9 @@ public class TestController {
 
     @Value("${test.hello:TEST}")//:后面是没有配置的时候的默认值
     public String str;
+
+    @Resource
+    private TestService testService;
     /**
      * GTE,POST,PUT,DELETE
      * /user?id=1
@@ -27,5 +36,10 @@ public class TestController {
     @PostMapping("/hello/post")//只支持get请求
     public String hellopost(String name){
         return "Hello World!"+name;
+    }
+
+    @GetMapping("/test/list")
+    public List<Test> list(){
+        return testService.list();
     }
 }
