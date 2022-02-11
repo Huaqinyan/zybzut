@@ -1,5 +1,5 @@
 <template>
-<a-layout id="components-layout-demo-top-side-2">
+<a-layout>
   <a-layout-sider width="200" style="background: #fff">
     <a-menu
             mode="inline"
@@ -52,13 +52,4 @@
     </a-layout-content>
 </a-layout>
 </template>
-<style>
-  #components-layout-demo-top-side-2 .logo {
-    width: 120px;
-    height: 31px;
-    margin: 16px 28px 16px 0;
-    background: rgba(255, 255, 255, 0.3);
-    float: left;
-  }
-</style>
 
