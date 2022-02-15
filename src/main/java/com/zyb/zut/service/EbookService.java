@@ -7,6 +7,7 @@ import com.zyb.zut.domain.EbookExample;
 import com.zyb.zut.mapper.EbookMapper;
 import com.zyb.zut.req.EbookReq;
 import com.zyb.zut.resp.EbookResp;
+import com.zyb.zut.resp.PageResq;
 import com.zyb.zut.util.CopyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +25,14 @@ public class EbookService {
     private EbookMapper ebookMapper;
 
 
-    public List<EbookResp> list(EbookReq ebookReq){
+    public PageResq<EbookResp> list(EbookReq ebookReq){
 
         EbookExample ebookExample=new EbookExample();
         EbookExample.Criteria criteria=ebookExample.createCriteria();
         if(!ObjectUtils.isEmpty(ebookReq.getName())){
             criteria.andNameLike("%"+ebookReq.getName()+"%");
         }
-        PageHelper.startPage(1,3);
+        PageHelper.startPage(ebookReq.getPage(),ebookReq.getSize());
         List<Ebook> ebookList= ebookMapper.selectByExample(ebookExample);
 
         PageInfo<Ebook> pageInfo=new PageInfo<>(ebookList);
@@ -46,8 +47,12 @@ public class EbookService {
 //
 //            respList.add(ebookResp);
 //        }
+
 //        列表复制
         List<EbookResp> list = CopyUtil.copyList(ebookList, EbookResp.class);
-        return list;
+        PageResq<EbookResp> pageResq=new PageResq<>();
+        pageResq.setTotal(pageInfo.getTotal());
+        pageResq.setList(list);
+        return pageResq;
     }
 }
