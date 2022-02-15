@@ -16,7 +16,7 @@
                 </template>
                 <template v-slot:action="{ text, record }">
                     <a-space size="small">
-                        <a-button type="primary" @click="edit(record)">
+                        <a-button type="primary" @click="edit">
                             编辑
                         </a-button>
                         <a-button type="danger">
@@ -27,6 +27,11 @@
             </a-table>
         </a-layout-content>
     </a-layout>
+    <a-modal v-model:visible="visible" title="电子书表单" @ok="handleOk">
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+    </a-modal>
 </template>
 
 <script lang="ts">
@@ -107,6 +112,19 @@
                     size: pagination.pageSize
                 });
             };
+
+            //表单
+            const visible = ref<boolean>(false);
+
+            const edit = () => {
+                visible.value = true;
+            };
+
+            const handleOk = (e: MouseEvent) => {
+                console.log(e);
+                visible.value = false;
+            };
+
             onMounted(() => {
                 handleQuery({
                     // 要与req中的名字一样才能映射到后端
@@ -115,12 +133,16 @@
                 });
             });
 
+
             return {
                 ebooks,
                 pagination,
                 columns,
                 loading,
                 handleTableChange,
+                visible,
+                edit,
+                handleOk,
             }
         }
     });
