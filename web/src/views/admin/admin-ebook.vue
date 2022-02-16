@@ -16,7 +16,7 @@
                 </template>
                 <template v-slot:action="{ text, record }">
                     <a-space size="small">
-                        <a-button type="primary" @click="edit">
+                        <a-button type="primary" @click="edit(record)">
                             编辑
                         </a-button>
                         <a-button type="danger">
@@ -28,9 +28,24 @@
         </a-layout-content>
     </a-layout>
     <a-modal v-model:visible="visible" title="电子书表单" @ok="handleOk">
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
+        <a-form :model="ebook" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+            <a-form-item label="封面">
+                <a-input v-model:value="ebook.cover" />
+            </a-form-item>
+            <a-form-item label="名称">
+                <a-input v-model:value="ebook.name" />
+            </a-form-item>
+            <a-form-item label="分类">
+                <a-cascader
+                        v-model:value="categoryIds"
+                        :field-names="{ label: 'name', value: 'id', children: 'children' }"
+                        :options="level1"
+                />
+            </a-form-item>
+            <a-form-item label="描述">
+                <a-input v-model:value="ebook.description" type="textarea" />
+            </a-form-item>
+        </a-form>
     </a-modal>
 </template>
 
@@ -41,6 +56,7 @@
     export default defineComponent({
         name: 'AdminEbook',
         setup() {
+            const ebook = ref();
             const ebooks = ref();
             const pagination = ref({
                 current: 1,
@@ -116,8 +132,9 @@
             //表单
             const visible = ref<boolean>(false);
 
-            const edit = () => {
+            const edit = (record:any) => {
                 visible.value = true;
+                ebook.value=record;
             };
 
             const handleOk = (e: MouseEvent) => {
@@ -135,6 +152,7 @@
 
 
             return {
+                ebook,
                 ebooks,
                 pagination,
                 columns,
