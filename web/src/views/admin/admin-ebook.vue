@@ -24,9 +24,16 @@
                         <a-button type="primary" @click="edit(record)">
                             编辑
                         </a-button>
-                        <a-button type="danger">
-                            删除
-                        </a-button>
+                        <a-popconfirm
+                                title="删除后不可恢复，确认删除"
+                                ok-text="是"
+                                cancel-text="否"
+                                @confirm="HandleDelete(record.id)"
+                        >
+                            <a-button type="danger">
+                                删除
+                            </a-button>
+                        </a-popconfirm>
                     </a-space>
                 </template>
             </a-table>
@@ -107,7 +114,7 @@
              **/
             const handleQuery = (p: any) => {
               loading.value=true;
-              axios.get("ebook/list",{
+              axios.get("/ebook/list",{
                   params:{
                       page:p.page,
                       size:p.size,
@@ -141,7 +148,7 @@
             const handleOk = (e: MouseEvent) => {
                 console.log(e);
                 modalLoading.value=true;
-                axios.post("ebook/save",ebook.value).then((response)=>{
+                axios.post("/ebook/save",ebook.value).then((response)=>{
                     modalLoading.value=false;
                     const data=response.data;
                     if (data.success){
@@ -167,6 +174,22 @@
                 ebook.value={};
             };
 
+            const HandleDelete =(id: number) =>{
+                console.log("id是"+id);
+                axios.delete("/ebook/delete/"+id).then((response)=>{
+                    const data=response.data;// data = commonResp
+                    if (data.success){
+                        //重新加载列表
+                        handleQuery({
+                            page:pagination.value.current,
+                            size:pagination.value.pageSize,
+                        });
+                    }else{
+                        message.error(data.message);
+                    }
+                });
+            };
+
 
             onMounted(() => {
                 handleQuery({
@@ -188,6 +211,7 @@
 
                 edit,
                 add,
+                HandleDelete,
 
                 handleOk,
                 handleQuery,
