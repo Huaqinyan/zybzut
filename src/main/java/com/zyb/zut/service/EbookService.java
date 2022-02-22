@@ -10,6 +10,7 @@ import com.zyb.zut.req.EbooSavekReq;
 import com.zyb.zut.resp.EbookQueryResp;
 import com.zyb.zut.resp.PageResq;
 import com.zyb.zut.util.CopyUtil;
+import com.zyb.zut.util.SnowFlake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ public class EbookService {
     private static final Logger LOG= LoggerFactory.getLogger(EbookService.class);
     @Resource
     private EbookMapper ebookMapper;
+
+    @Resource
+    private SnowFlake snowFlake;
 
 
     public PageResq<EbookQueryResp> list(EbooQuerykReq ebooQuerykReq){
@@ -65,6 +69,7 @@ public class EbookService {
         Ebook ebook=CopyUtil.copy(req,Ebook.class);
         if(ObjectUtils.isEmpty(req.getId())){
             //新增
+            ebook.setId(snowFlake.nextId());
             ebookMapper.insert(ebook);
         }else{
             //更新
