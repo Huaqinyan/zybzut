@@ -1,17 +1,14 @@
 package com.zyb.zut.controller;
 
-import com.github.pagehelper.Page;
-import com.zyb.zut.req.EbookReq;
+import com.zyb.zut.req.EbooQuerykReq;
+import com.zyb.zut.req.EbooSavekReq;
 import com.zyb.zut.resp.CommonResp;
-import com.zyb.zut.resp.EbookResp;
+import com.zyb.zut.resp.EbookQueryResp;
 import com.zyb.zut.resp.PageResq;
 import com.zyb.zut.service.EbookService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 @RestController
 @RequestMapping("/ebook")
@@ -21,10 +18,17 @@ public class EbookController {
     private EbookService ebookService;
 
     @GetMapping("/list")
-    public CommonResp list(EbookReq ebookReq){
-        CommonResp<PageResq<EbookResp>> resp =new CommonResp<>();
-        PageResq<EbookResp> list= ebookService.list(ebookReq);
+    public CommonResp list(EbooQuerykReq ebooQuerykReq){
+        CommonResp<PageResq<EbookQueryResp>> resp =new CommonResp<>();
+        PageResq<EbookQueryResp> list= ebookService.list(ebooQuerykReq);
         resp.setContent(list);
+        return resp;
+    }
+
+    @PostMapping("/save")
+    public CommonResp save(@RequestBody EbooSavekReq ebooSavekReq){
+        CommonResp resp =new CommonResp<>();
+        ebookService.save(ebooSavekReq);
         return resp;
     }
 }

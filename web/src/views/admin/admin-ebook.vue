@@ -27,7 +27,7 @@
             </a-table>
         </a-layout-content>
     </a-layout>
-    <a-modal v-model:visible="visible" title="电子书表单" @ok="handleOk">
+    <a-modal v-model:visible="visible" :confirm-loading="modalLoading" title="电子书表单" @ok="handleOk">
         <a-form :model="ebook" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
             <a-form-item label="封面">
                 <a-input v-model:value="ebook.cover" />
@@ -52,18 +52,17 @@
 <script lang="ts">
     import {defineComponent, onMounted, ref} from 'vue';
     import axios from 'axios';
+    import {message} from "ant-design-vue";
 
     export default defineComponent({
         name: 'AdminEbook',
         setup() {
-            const ebook = ref();
             const ebooks = ref();
             const pagination = ref({
                 current: 1,
                 pageSize: 4,
                 total: 0
             });
-            const loading = ref(false);
 
             const columns = [
                 {
@@ -101,19 +100,19 @@
             /**
              * 数据查询
              **/
-            const handleQuery = (params: any) => {
+            const handleQuery = (p: any) => {
               loading.value=true;
               axios.get("ebook/list",{
                   params:{
-                      page:params.page,
-                      size:params.size,
+                      page:p.page,
+                      size:p.size,
                   }
               }).then((response)=>{
                 loading.value=false;
                 const data=response.data;
                 ebooks.value=data.content.list;
                 //重置分页按钮
-                pagination.value.current=params.page;
+                pagination.value.current=p.page;
                 pagination.value.total=data.content.total;
               })
             };
@@ -130,17 +129,34 @@
             };
 
             //表单
-            const visible = ref<boolean>(false);
+            const ebook=ref();
+            const visible=ref(false);
+            const loading = ref(false);
+            const modalLoading = ref(false);
+            const handleOk = (e: MouseEvent) => {
+                console.log(e);
+                modalLoading.value=true;
+                axios.post("ebook/save",ebook.value).then((response)=>{
+                    modalLoading.value=false;
+                    const data=response.data;
+                    if (data.success){
+                        visible.value=false;
+                        //重新加载列表
+                        handleQuery({
+                            page:pagination.value.current,
+                            size:pagination.value.pageSize,
+                        })
+                    }else{
+                        message.error(data.message);
+                    }
+                })
+            };
 
             const edit = (record:any) => {
                 visible.value = true;
                 ebook.value=record;
             };
 
-            const handleOk = (e: MouseEvent) => {
-                console.log(e);
-                visible.value = false;
-            };
 
             onMounted(() => {
                 handleQuery({
@@ -161,6 +177,8 @@
                 visible,
                 edit,
                 handleOk,
+                handleQuery,
+                modalLoading,
             }
         }
     });

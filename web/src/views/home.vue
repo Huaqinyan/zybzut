@@ -5,6 +5,12 @@
                     mode="inline"
                     :style="{ height: '100%', borderRight: 0 }"
             >
+                <a-menu-item key="welcome">
+                    <router-link :to="'/'">
+                        <MailOutLined />
+                        <span>欢迎</span>
+                    </router-link>
+                </a-menu-item>
                 <a-sub-menu key="sub1">
                     <template #title>
               <span>
