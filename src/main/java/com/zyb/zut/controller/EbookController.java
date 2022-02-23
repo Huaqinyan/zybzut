@@ -27,7 +27,7 @@ public class EbookController {
     }
 
     @PostMapping("/save")
-    public CommonResp save(@RequestBody EbooSavekReq ebooSavekReq){
+    public CommonResp save(@Valid @RequestBody EbooSavekReq ebooSavekReq){
         CommonResp resp =new CommonResp<>();
         ebookService.save(ebooSavekReq);
         return resp;

@@ -2,10 +2,13 @@ package com.zyb.zut.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.validation.constraints.NotNull;
+
 public class EbooSavekReq extends PageReq{
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 
+    @NotNull(message = "【名称】不能为空")
     private String name;
 
     private Long category1Id;

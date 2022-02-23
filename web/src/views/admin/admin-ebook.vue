@@ -4,10 +4,31 @@
                 :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
         >
             <p>
-                <a-button type="primary" @click="add()">
-                    新增
-                </a-button>
+                <a-form
+                        layout="inline"
+                        :model="param"
+                >
+                    <a-form-item>
+                        <a-input v-model:value="param.name" placeholder="请输入关键字...">
+                            <template #prefix><SearchOutlined style="color: rgba(0, 0, 0, 0.25)"/></template>
+                        </a-input>
+                    </a-form-item>
+                    <a-form-item>
+                        <a-button
+                                type="primary"
+                                @click="handleQuery({page:1,size:pagination.pageSize})"
+                        >
+                            搜索
+                        </a-button>
+                    </a-form-item>
+                    <a-form-item>
+                        <a-button type="primary" @click="add()">
+                            新增
+                        </a-button>
+                    </a-form-item>
+                </a-form>
             </p>
+
             <a-table
                 :columns="columns"
                 :row-key="record => record.id"
@@ -69,10 +90,12 @@
     export default defineComponent({
         name: 'AdminEbook',
         setup() {
+            const param=ref();
+            param.value={};
             const ebooks = ref();
             const pagination = ref({
                 current: 1,
-                pageSize: 1001,
+                pageSize: 5,
                 total: 0
             });
 
@@ -118,11 +141,12 @@
                   params:{
                       page:p.page,
                       size:p.size,
+                      name:param.value.name,
                   }
               }).then((response)=>{
                 loading.value=false;
                 const data=response.data;
-                if(data.succes){
+                if(data.success){
                     ebooks.value=data.content.list;
                     //重置分页按钮
                     pagination.value.current=p.page;
@@ -149,12 +173,9 @@
             const ebook=ref();
             const visible=ref(false);
             const loading = ref(false);
-            const modalLoading = ref(false);
             const handleOk = (e: MouseEvent) => {
                 console.log(e);
-                modalLoading.value=true;
                 axios.post("/ebook/save",ebook.value).then((response)=>{
-                    modalLoading.value=false;
                     const data=response.data;
                     if (data.success){
                         visible.value=false;
@@ -213,6 +234,7 @@
                 loading,
                 handleTableChange,
                 visible,
+                param,
 
                 edit,
                 add,
@@ -220,7 +242,6 @@
 
                 handleOk,
                 handleQuery,
-                modalLoading,
             }
         }
     });
