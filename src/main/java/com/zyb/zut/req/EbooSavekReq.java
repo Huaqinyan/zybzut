@@ -1,6 +1,9 @@
 package com.zyb.zut.req;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class EbooSavekReq extends PageReq{
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 
     private String name;

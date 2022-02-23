@@ -9,6 +9,7 @@ import com.zyb.zut.service.EbookService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/ebook")
@@ -18,7 +19,7 @@ public class EbookController {
     private EbookService ebookService;
 
     @GetMapping("/list")
-    public CommonResp list(EbooQuerykReq ebooQuerykReq){
+    public CommonResp list(@Valid EbooQuerykReq ebooQuerykReq){
         CommonResp<PageResq<EbookQueryResp>> resp =new CommonResp<>();
         PageResq<EbookQueryResp> list= ebookService.list(ebooQuerykReq);
         resp.setContent(list);
