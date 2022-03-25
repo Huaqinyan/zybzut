@@ -9,16 +9,11 @@
                         :model="param"
                 >
                     <a-form-item>
-                        <a-input v-model:value="param.name" placeholder="请输入关键字...">
-                            <template #prefix><SearchOutlined style="color: rgba(0, 0, 0, 0.25)"/></template>
-                        </a-input>
-                    </a-form-item>
-                    <a-form-item>
                         <a-button
                                 type="primary"
-                                @click="handleQuery({page:1,size:pagination.pageSize})"
+                                @click="handleQuery()"
                         >
-                            搜索
+                            刷新
                         </a-button>
                     </a-form-item>
                     <a-form-item>
@@ -32,10 +27,9 @@
             <a-table
                 :columns="columns"
                 :row-key="record => record.id"
-                :data-source="categorys"
-                :pagination="pagination"
+                :data-source="level1"
                 :loading="loading"
-                @change="handleTableChange"
+                :pagination="false"
             >
                 <template #cover="{ text: cover }">
                     <img v-if="cover" :src="cover" alt="avatar"/>
@@ -60,7 +54,7 @@
             </a-table>
         </a-layout-content>
     </a-layout>
-    <a-modal v-model:visible="visible" :confirm-loading="modalLoading" title="分类表单" @ok="handleOk">
+    <a-modal v-model:visible="visible" title="分类表单" @ok="handleOk">
         <a-form :model="category" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
             <a-form-item label="名称">
                 <a-input v-model:value="category.name" />
@@ -87,12 +81,6 @@
             const param=ref();
             param.value={};
             const categorys = ref();
-            const pagination = ref({
-                current: 1,
-                pageSize: 5,
-                total: 0
-            });
-
             const columns = [
                 {
                     title: '名称',
@@ -112,42 +100,40 @@
                     slots: {customRender: 'action'}
                 }
             ];
+            /**
+             * 一级分类，children属性是二级分类
+             *[{
+             *     id:"";
+             *     name:"";
+             *     children:[{
+             *         id:"",
+             *         name:"",
+             *     }]
+             *}]
+             */
+            const level1=ref();
+            level1.value=[];
 
             /**
              * 数据查询
              **/
-            const handleQuery = (p: any) => {
+            const handleQuery = () => {
               loading.value=true;
-              axios.get("/category/list",{
-                  params:{
-                      page:p.page,
-                      size:p.size,
-                      name:param.value.name,
-                  }
-              }).then((response)=>{
+              level1.value=[];
+              axios.get("/category/all").then((response)=>{
                 loading.value=false;
                 const data=response.data;
                 if(data.success){
-                    categorys.value=data.content.list;
-                    //重置分页按钮
-                    pagination.value.current=p.page;
-                    pagination.value.total=data.content.total;
+                    categorys.value=data.content;
+                    console.log("原始数据：",category.value);
+
+                    level1.value=[];
+                    level1.value=Tool.array2Tree(category.value,0);
+                    console.log("树形结构：",level1);
                 }else{
                     message.error(data.message);
                 }
-
               })
-            };
-
-            /**
-             * 表格点击页码时触发
-             */
-            const handleTableChange = (pagination: any) => {
-                console.log("看看自带的分页参数都有啥：" + pagination);
-                handleQuery({
-                    page: pagination.current,
-                    size: pagination.pageSize
-                });
             };
 
             //表单
@@ -161,10 +147,7 @@
                     if (data.success){
                         visible.value=false;
                         //重新加载列表
-                        handleQuery({
-                            page:pagination.value.current,
-                            size:pagination.value.pageSize,
-                        })
+                        handleQuery();
                     }else{
                         message.error(data.message);
                     }
@@ -187,40 +170,29 @@
                     const data=response.data;// data = commonResp
                     if (data.success){
                         //重新加载列表
-                        handleQuery({
-                            page:pagination.value.current,
-                            size:pagination.value.pageSize,
-                        });
+                        handleQuery();
                     }else{
                         message.error(data.message);
                     }
                 });
             };
 
-
             onMounted(() => {
-                handleQuery({
-                    // 要与req中的名字一样才能映射到后端
-                    page:1,
-                    size:pagination.value.pageSize,
-                });
+                handleQuery();
             });
 
-
             return {
+                param,
                 category,
-                categorys,
-                pagination,
+                level1,
                 columns,
                 loading,
-                handleTableChange,
                 visible,
-                param,
 
                 edit,
                 add,
-                HandleDelete,
 
+                HandleDelete,
                 handleOk,
                 handleQuery,
             }
