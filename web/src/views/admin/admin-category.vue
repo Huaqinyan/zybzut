@@ -119,16 +119,17 @@
              **/
             const handleQuery = () => {
               loading.value=true;
+                // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
               level1.value=[];
               axios.get("/category/all").then((response)=>{
                 loading.value=false;
                 const data=response.data;
                 if(data.success){
                     categorys.value=data.content;
-                    console.log("原始数据：",category.value);
+                    console.log("原始数据：",categorys.value);
 
                     level1.value=[];
-                    level1.value=Tool.array2Tree(category.value,0);
+                    level1.value=Tool.array2Tree(categorys.value,0);
                     console.log("树形结构：",level1);
                 }else{
                     message.error(data.message);
