@@ -17,7 +17,6 @@ create table `demo`(
 
 insert into `demo` (id, name) values (1,'测试');
 
-
 #电子书表
 drop table if exists `ebook`;
 create table `ebook`(

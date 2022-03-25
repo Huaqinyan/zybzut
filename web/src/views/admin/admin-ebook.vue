@@ -33,12 +33,15 @@
                 :columns="columns"
                 :row-key="record => record.id"
                 :data-source="ebooks"
-                :pagination="pagination"
                 :loading="loading"
+                :pagination="pagination"
                 @change="handleTableChange"
             >
                 <template #cover="{ text: cover }">
                     <img v-if="cover" :src="cover" alt="avatar"/>
+                </template>
+                <template v-slot:category="{ text, record }">
+                    <span>{{getCategoryName(record.category1Id)}}/{{ getCategoryName(record.category2Id) }}</span>
                 </template>
                 <template v-slot:action="{ text, record }">
                     <a-space size="small">
@@ -99,7 +102,6 @@
                 pageSize: 5,
                 total: 0
             });
-
             const columns = [
                 {
                     title: '封面',
@@ -132,12 +134,12 @@
                     slots: {customRender: 'action'}
                 }
             ];
-
             /**
              * 数据查询
              **/
             const handleQuery = (p: any) => {
               loading.value=true;
+              ebooks.value=[];
               axios.get("/ebook/list",{
                   params:{
                       page:p.page,
@@ -155,7 +157,6 @@
                 }else{
                     message.error(data.message);
                 }
-
               })
             };
 
@@ -163,7 +164,7 @@
              * 表格点击页码时触发
              */
             const handleTableChange = (pagination: any) => {
-                console.log("看看自带的分页参数都有啥：" + pagination);
+                console.log("看看自带的分页参数都有：" + pagination);
                 handleQuery({
                     page: pagination.current,
                     size: pagination.pageSize
@@ -171,12 +172,19 @@
             };
 
             //表单
+            const categoryIds=ref();
             const ebook=ref();
             const visible=ref(false);
-            const loading = ref(false);
-            const handleOk = (e: MouseEvent) => {
-                console.log(e);
+            const loading=ref(false);
+            const modalVisible=ref(false);
+            const modalLoading = ref(false);
+
+            const handleOk = () => {
+                loading.value=true;
+                ebook.value.category1Id=categoryIds.value[0];
+                ebook.value.category2Id=categoryIds.value[1];
                 axios.post("/ebook/save",ebook.value).then((response)=>{
+                    loading.value=false;
                     const data=response.data;
                     if (data.success){
                         visible.value=false;
@@ -192,8 +200,9 @@
             };
 
             const edit = (record:any) => {
-                visible.value = true;
+                visible.value=true;
                 ebook.value=Tool.copy(record);
+                categoryIds.value=[ebook.value.category1Id,ebook.value.category2Id];
             };
 
             const add = () => {
@@ -202,7 +211,6 @@
             };
 
             const HandleDelete =(id: number) =>{
-                console.log("id是"+id);
                 axios.delete("/ebook/delete/"+id).then((response)=>{
                     const data=response.data;// data = commonResp
                     if (data.success){
@@ -217,30 +225,71 @@
                 });
             };
 
+            const level1=ref();
+            let categorys: any;
+
+            /**
+             * 数据查询
+             **/
+            const handleQueryCategory = () => {
+                // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
+                loading.value=true;
+                axios.get("/category/all").then((response)=>{
+                    loading.value=false;
+                    const data=response.data;
+                    if(data.success){
+                        categorys=data.content;
+                        console.log("原始数据：",categorys);
+
+                        level1.value=[];
+                        level1.value=Tool.array2Tree(categorys,0);
+                        console.log("树形结构：",level1.value);
+
+                        // 加载完分类后,再加载电子书,否则如果分类树加载很慢,则电子书渲染会报锉
+                        handleQuery({
+                            // 要与req中的名字一样才能映射到后端
+                            page:1,
+                            size:pagination.value.pageSize,
+                        });
+                    }else{
+                        message.error(data.message);
+                    }
+                })
+            };
+
+            const getCategoryName = (cid: number) => {
+                // console.log(cid)
+                let result = "";
+                categorys.forEach((item: any) => {
+                    if (item.id == cid) {
+                        // return item.name; // 注意，这里直接return不起作用
+                        result = item.name;
+                    }
+                });
+                return result;
+            };
 
             onMounted(() => {
-                handleQuery({
-                    // 要与req中的名字一样才能映射到后端
-                    page:1,
-                    size:pagination.value.pageSize,
-                });
+                handleQueryCategory();
             });
-
 
             return {
                 ebook,
                 ebooks,
                 pagination,
                 columns,
-                loading,
                 handleTableChange,
                 visible,
+                loading,
                 param,
-
+                categoryIds,
+                level1,
+                modalVisible,
+                modalLoading,
+                getCategoryName,
                 edit,
                 add,
                 HandleDelete,
-
                 handleOk,
                 handleQuery,
             }
