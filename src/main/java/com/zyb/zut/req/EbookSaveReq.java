@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.NotNull;
 
-public class EbooSavekReq extends PageReq{
+public class EbookSaveReq extends PageReq{
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 

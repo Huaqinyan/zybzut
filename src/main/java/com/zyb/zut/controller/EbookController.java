@@ -1,7 +1,7 @@
 package com.zyb.zut.controller;
 
-import com.zyb.zut.req.EbooQuerykReq;
-import com.zyb.zut.req.EbooSavekReq;
+import com.zyb.zut.req.EbookQueryReq;
+import com.zyb.zut.req.EbookSaveReq;
 import com.zyb.zut.resp.CommonResp;
 import com.zyb.zut.resp.EbookQueryResp;
 import com.zyb.zut.resp.PageResq;
@@ -19,17 +19,17 @@ public class EbookController {
     private EbookService ebookService;
 
     @GetMapping("/list")
-    public CommonResp list(@Valid EbooQuerykReq ebooQuerykReq){
+    public CommonResp list(@Valid EbookQueryReq ebookQueryReq){
         CommonResp<PageResq<EbookQueryResp>> resp =new CommonResp<>();
-        PageResq<EbookQueryResp> list= ebookService.list(ebooQuerykReq);
+        PageResq<EbookQueryResp> list= ebookService.list(ebookQueryReq);
         resp.setContent(list);
         return resp;
     }
 
     @PostMapping("/save")
-    public CommonResp save(@Valid @RequestBody EbooSavekReq ebooSavekReq){
+    public CommonResp save(@Valid @RequestBody EbookSaveReq ebookSaveReq){
         CommonResp resp =new CommonResp<>();
-        ebookService.save(ebooSavekReq);
+        ebookService.save(ebookSaveReq);
         return resp;
     }
     @DeleteMapping("/delete/{id}")

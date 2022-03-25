@@ -1,15 +1,19 @@
-package com.zyb.zut.domain;
+package com.zyb.zut.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-public class Category {
+import javax.validation.constraints.NotNull;
+
+public class CategorySaveReq {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 
     private Long parent;
 
+    @NotNull(message = "【名称】不能为空")
     private String name;
 
+    @NotNull(message = "【排序】不能为空")
     private Integer sort;
 
     public Long getId() {

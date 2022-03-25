@@ -5,8 +5,8 @@ import com.github.pagehelper.PageInfo;
 import com.zyb.zut.domain.Ebook;
 import com.zyb.zut.domain.EbookExample;
 import com.zyb.zut.mapper.EbookMapper;
-import com.zyb.zut.req.EbooQuerykReq;
-import com.zyb.zut.req.EbooSavekReq;
+import com.zyb.zut.req.EbookQueryReq;
+import com.zyb.zut.req.EbookSaveReq;
 import com.zyb.zut.resp.EbookQueryResp;
 import com.zyb.zut.resp.PageResq;
 import com.zyb.zut.util.CopyUtil;
@@ -30,14 +30,14 @@ public class EbookService {
     private SnowFlake snowFlake;
 
 
-    public PageResq<EbookQueryResp> list(EbooQuerykReq ebooQuerykReq){
+    public PageResq<EbookQueryResp> list(EbookQueryReq ebookQueryReq){
 
         EbookExample ebookExample=new EbookExample();
         EbookExample.Criteria criteria=ebookExample.createCriteria();
-        if(!ObjectUtils.isEmpty(ebooQuerykReq.getName())){
-            criteria.andNameLike("%"+ ebooQuerykReq.getName()+"%");
+        if(!ObjectUtils.isEmpty(ebookQueryReq.getName())){
+            criteria.andNameLike("%"+ ebookQueryReq.getName()+"%");
         }
-        PageHelper.startPage(ebooQuerykReq.getPage(), ebooQuerykReq.getSize());
+        PageHelper.startPage(ebookQueryReq.getPage(), ebookQueryReq.getSize());
         List<Ebook> ebookList= ebookMapper.selectByExample(ebookExample);
 
         PageInfo<Ebook> pageInfo=new PageInfo<>(ebookList);
@@ -65,7 +65,7 @@ public class EbookService {
      * 保存
      * @param req
      */
-    public void save(EbooSavekReq req){
+    public void save(EbookSaveReq req){
         Ebook ebook=CopyUtil.copy(req,Ebook.class);
         if(ObjectUtils.isEmpty(req.getId())){
             //新增
